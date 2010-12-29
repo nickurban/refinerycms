@@ -43,6 +43,8 @@ end
 
 # USER DEFINED
 
+gem 'mime-types', :require => 'mime/types'
+
 # Specify additional Refinery CMS Engines here (all optional):
 # gem 'refinerycms-inquiries',    '~> 0.9'
 # gem 'refinerycms-news',         '~> 1.0'
