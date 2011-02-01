@@ -2,14 +2,15 @@ require 'globalize3'
 
 class Page < ActiveRecord::Base
 
-  translates :title, :meta_keywords, :meta_description, :browser_title
+  translates :title, :meta_keywords, :meta_description, :browser_title if self.respond_to?(:translates)
   attr_accessor :locale # to hold temporarily
   validates :title, :presence => true
 
   acts_as_nested_set
 
   # Docs for friendly_id http://github.com/norman/friendly_id
-  has_friendly_id :title, :use_slug => true, :default_locale => ::Refinery::I18n.default_frontend_locale,
+  has_friendly_id :title, :use_slug => true,
+                  :default_locale => (defined?(::Refinery::I18n.default_frontend_locale) ? ::Refinery::I18n.default_frontend_locale : :en),
                   :reserved_words => %w(index new session login logout users refinery admin images wymiframe),
                   :approximate_ascii => RefinerySetting.find_or_set(:approximate_ascii, false, :scoping => "pages")
 
@@ -31,22 +32,14 @@ class Page < ActiveRecord::Base
 
   scope :live, where(:draft => false)
 
-  # Rejects any page that has not been translated to the current locale.
+  # shows all pages with :show_in_menu set to true, but it also
+  # rejects any page that has not been translated to the current locale.
   scope :in_menu, lambda {
     pages = Arel::Table.new(Page.table_name)
     translations = Arel::Table.new(Page.translations_table_name)
-    page_parts = Arel::Table.new(PagePart.table_name)
-    slugs = Arel::Table.new(Slug.table_name)
 
-    # Specify columns for GROUP BY (Postgres requires that all selected fields be listed in GROUP BY)
-    group_columns = [ pages[:id] ] # make sure page ID is first
-    [pages, translations, page_parts, slugs].each do |table|
-      group_columns += table.columns.map { |col| "\"#{table.name}\".\"#{col.name}\"" }
-    end
-
-    includes(:translations).where(
-      translations[:locale].eq(Globalize.locale), :show_in_menu => true
-    ).group(group_columns).having("#{translations[:id].count.to_sql} > 0")
+    includes(:translations).where(:show_in_menu => true).where(
+      translations[:locale].eq(Globalize.locale)).where(pages[:id].eq(translations[:page_id]))
   }
 
   # when a dialog pops up to link to a page, how many pages per page should there be
@@ -255,8 +248,8 @@ class Page < ActiveRecord::Base
   # In the admin area we use a slightly different title to inform the which pages are draft or hidden pages
   def title_with_meta
     title = self.title.to_s
-    title << " <em>(#{::I18n.t('admin.pages.page.hidden')})</em>" unless show_in_menu?
-    title << " <em>(#{::I18n.t('admin.pages.page.draft')})</em>" if draft?
+    title << " <em>(#{::I18n.t('hidden', :scope => 'admin.pages.page')})</em>" unless show_in_menu?
+    title << " <em>(#{::I18n.t('draft', :scope => 'admin.pages.page')})</em>" if draft?
 
     title.strip
   end

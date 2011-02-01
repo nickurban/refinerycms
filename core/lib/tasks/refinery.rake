@@ -5,7 +5,7 @@ namespace :refinery do
     require 'fileutils'
 
     if (view = ENV["view"]).present?
-      pattern = "#{view.split("/").join(File::SEPARATOR)}*.(erb|builder)"
+      pattern = "#{view.split("/").join(File::SEPARATOR)}*.{erb,builder}"
       looking_for = Refinery::Plugins.registered.pathnames.map{|p| p.join("app", "views", pattern).to_s}
 
       # copy in the matches
@@ -128,7 +128,7 @@ namespace :refinery do
       end
     end
   end
-  
+
   desc "Un-crudify a method on a controller that uses crudify"
   task :uncrudify => :environment do
     if (model_name = ENV["model"]).present? and (action = ENV["action"]).present?
@@ -170,10 +170,27 @@ namespace :refinery do
       FileUtils::rm bad_migration
     end
 
-    # copy in any new migrations.
+    unless (devise_config = Rails.root.join('config', 'initializers', 'devise.rb')).file?
+      devise_config.parent.mkpath
+      FileUtils::cp Refinery.root.join(*%w(core lib generators templates config initializers devise.rb)),
+                    devise_config,
+                    :verbose => verbose
+    end
+
+    (contents = Rails.root.join('Gemfile').read).gsub!("group :test do", "group :development, :test do")
+    Rails.root.join('Gemfile').open("w") do |f|
+      f.puts contents
+    end
+
+    # copy in any new migrations, except for ones that create schemas (this is an update!)
+    # or ones that exist already.
     Rails.root.join("db", "migrate").mkpath
-    FileUtils::cp Dir[Refinery.root.join("db", "migrate", "*.rb").cleanpath.to_s].reject{|m| m =~ %r{\d+_create_refinerycms_.+?_schema\.rb}},
-                  Rails.root.join("db", "migrate").cleanpath.to_s,
+    migrations = Pathname.glob(Refinery.root.join("db", "migrate", "*.rb")).reject{|m|
+      m.to_s =~ %r{\d+_create_refinerycms_.+?_schema\.rb} or
+      Dir[Rails.root.join('db', 'migrate', "*#{m.split.last.to_s.split(/\d+_/).last}")].any?
+    }
+    FileUtils::cp migrations,
+                  Rails.root.join('db', 'migrate').cleanpath.to_s,
                   :verbose => verbose
 
     Rails.root.join("db", "seeds").mkpath
