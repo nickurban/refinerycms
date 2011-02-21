@@ -11,6 +11,10 @@ module Admin
     end
 
     def create
+      # Set the MIME type, since Flash doesn't do it properly. As suggested here:
+      # http://www.glrzad.com/ruby-on-rails/using-uploadify-with-rails-3-part-2-controller-example/
+      params[:resource][:file].content_type = MIME::Types.type_for(params[:resource][:file].original_filename).to_s
+
       @resources = Resource.create_resources(params[:resource])
       @resource = @resources.detect { |r| !r.valid? }
 
