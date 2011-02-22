@@ -65,7 +65,49 @@ module Admin
       render :action => "insert"
     end
 
-  protected
+  def update
+    if @resource.update_attributes(params[:resource])
+      (request.xhr? ? flash.now : flash).notice = t(
+        'refinery.crudify.updated',
+        :what => "'\#{@resource.title}'"
+      )
+
+      # Redirect will be handled in the script
+      if params[:uploadify]
+        flash.notice = 'HEY!'
+        flash.keep
+        render :text => 'Ok'
+        return
+      end
+
+      unless from_dialog?
+        unless params[:continue_editing] =~ /true|on|1/
+          redirect_back_or_default(admin_resource_url)
+render :text => 'ok'
+        else
+          unless request.xhr?
+            redirect_to :back
+          else
+            render :partial => "/shared/message"
+          end
+        end
+      else
+        render :text => "<script>parent.window.location = '\#{admin_resource_url}';</script>"
+      end
+    else
+      unless request.xhr?
+        render :action => 'edit'
+      else
+        render :partial => "/shared/admin/error_messages",
+               :locals => {
+                 :object => @resource,
+                 :include_object_name => true
+               }
+      end
+    end
+  end
+
+protected
 
     def init_dialog
       @app_dialog = params[:app_dialog].present?
