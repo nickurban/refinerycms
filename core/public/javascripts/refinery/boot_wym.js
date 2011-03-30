@@ -41,9 +41,9 @@ var wymeditor_boot_options = $.extend({
   , langPath: "/javascripts/wymeditor/lang/"
   , iframeBasePath: '/'
   , classesItems: [
-    {name: 'text-align', rules:['left', 'center', 'right', 'justify'], join: '-'}
-    , {name: 'image-align', rules:['left', 'right'], join: '-'}
-    , {name: 'font-size', rules:['small', 'normal', 'large'], join: '-'}
+    {name: 'text-align', rules:[{name: 'left', title: '{Left}'}, {name: 'center', title: '{Center}'}, {name: 'right', title: '{Right}'}, {name: 'justify', title: '{Justify}'}], join: '-', title: '{Text_Align}'}
+    , {name: 'image-align', rules:[{name: 'left', title: '{Left}'}, {name: 'right', title: '{Right}'}], join: '-', title: '{Image_Align}'}
+    , {name: 'font-size', rules:[{name: 'small', title: '{Small}'}, {name: 'normal', title: '{Normal}'}, {name: 'large', title: '{Large}'}], join: '-', title: '{Font_Size}'}
   ]
 
   , containersItems: [
@@ -69,7 +69,9 @@ var wymeditor_boot_options = $.extend({
     ,{'name': 'ToggleHtml', 'title': 'HTML', 'css': 'wym_tools_html'}
   ]
 
-  ,toolsHtml: "<ul class='wym_tools wym_section wym_buttons'>" + WYMeditor.TOOLS_ITEMS + WYMeditor.CLASSES + "</ul>"
+  ,toolsHtml: "<ul class='wym_tools wym_section wym_buttons'>"
+                + WYMeditor.TOOLS_ITEMS
+              + "</ul>"
 
   ,toolsItemHtml:
     "<li class='" + WYMeditor.TOOL_CLASS + "'>"
@@ -78,12 +80,14 @@ var wymeditor_boot_options = $.extend({
       + "</a>"
     + "</li>"
 
-  , classesHtml: "<li class='wym_tools_class'>"
-                 + "<a href='#' name='" + WYMeditor.APPLY_CLASS + "' title='"+ WYMeditor.APPLY_CLASS +"' class='no-tooltip'>"
-                   + WYMeditor.APPLY_CLASS
-                 + "</a>"
-                 + "<ul class='wym_classes wym_classes_hidden'>" + WYMeditor.CLASSES_ITEMS + "</ul>"
-                + "</li>"
+  , classesHtml: "<ul class='wym_classes_container wym_section wym_buttons'>"
+                   + "<li class='wym_tools_class'>"
+                   + "<a href='#' name='" + WYMeditor.APPLY_CLASS + "' title='"+ WYMeditor.APPLY_CLASS +"' class='no-tooltip'>"
+                     + WYMeditor.APPLY_CLASS
+                   + "</a>"
+                   + "<ul class='wym_classes wym_classes_hidden'>" + WYMeditor.CLASSES_ITEMS + "</ul>"
+                  + "</li>"
+                + "</ul>"
 
   , classesItemHtml: "<li><a href='#' name='"+ WYMeditor.CLASS_NAME + "'>"+ WYMeditor.CLASS_TITLE+ "</a></li>"
   , classesItemHtmlMultiple: "<li class='wym_tools_class_multiple_rules'>"
@@ -103,6 +107,7 @@ var wymeditor_boot_options = $.extend({
     + "<div class='wym_area_top clearfix'>"
       + WYMeditor.CONTAINERS
       + WYMeditor.TOOLS
+      + WYMeditor.CLASSES
     + "</div>"
     + "<div class='wym_area_main'>"
       + WYMeditor.HTML
@@ -245,10 +250,10 @@ WYMeditor.editor.prototype.loadIframe = function(iframe) {
     doc.write(html);
     doc.close();
 
+    var doc_head = doc.head || $(doc).find('head').get(0);
     $.each(["wymeditor/skins/refinery/wymiframe", "formatting", "refinery/theme", "theme"], function(i, href) {
-      $("<link href='/stylesheets/" + href + ".css' media='all' rel='stylesheet' />").appendTo(doc.head);
+      $("<link href='/stylesheets/" + href + ".css?"+Math.random().toString().split('.')[1]+"' media='all' rel='stylesheet' />").appendTo(doc_head);
     });
-    $("<script src='/javascripts/modernizr-min.js'></script>").appendTo(doc.head);
   }
   if ((id_of_editor = wym._element.parent().attr('id')) != null) {
     $(doc.body).addClass(id_of_editor);

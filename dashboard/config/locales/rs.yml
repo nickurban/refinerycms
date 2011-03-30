@@ -7,6 +7,7 @@ rs:
     dashboard:
       index:
         quick_tasks: Brzi zadaci
+      actions:
         add_a_new_page: Dodaj novu stranu
         update_a_page: Izmeni stranu
         upload_a_image: Upload-uj sliku
@@ -16,7 +17,7 @@ rs:
       recent_activity:
         empty: Nije bilo aktivnosti u skorije vreme.
         latest_activity: Poslednja aktivnost
-        latest_activity_message: %{what} %{kind} je %{action}
+        latest_activity_message: '%{what} %{kind} je %{action}'
       recent_inquiries:
         latest_inquiries: Poslednja pitanja
   updated:

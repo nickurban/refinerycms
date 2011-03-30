@@ -1,11 +1,11 @@
-class SessionsController < Devise::SessionsController
+class SessionsController < ::Devise::SessionsController
   layout 'login'
 
   before_filter :clear_unauthenticated_flash, :only => [:new]
 
   def create
     super
-  rescue BCrypt::Errors::InvalidSalt
+  rescue ::BCrypt::Errors::InvalidSalt, ::BCrypt::Errors::InvalidHash
     flash[:error] = t('password_encryption', :scope => 'users.forgot')
     redirect_to new_user_password_path
   end

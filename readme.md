@@ -12,10 +12,10 @@ Refinery also supports Rails 2.x using the [Rails 2.x stable branch](http://gith
 ## How to
 
 * __[Install Refinery CMS](http://refinerycms.com/download)__
-* [Update Refinery CMS to the latest version](http://refinerycms.com/guides/how-to-update-refinery-to-the-latest-version)
+* [Update Refinery CMS to the latest stable version](http://refinerycms.com/guides/how-to-update-refinery-to-the-latest-stable-version)
 * [Install Refinery CMS on Heroku](http://refinerycms.com/guides/how-to-install-refinery-on-heroku)
 * [Run the Refinery CMS test suite](http://refinerycms.com/guides/how-to-test-refinery)
-* __[Contribute to Refinery CMS](http://refinerycms.com/guides/how-to-contribute-to-refinery)__
+* __[Contribute to Refinery CMS](http://refinerycms.com/guides/how-to-contribute-to-refinery-development)__
 * __[Donate to the Refinery CMS core team](http://pledgie.com/campaigns/8431)__
 
 ## Getting Started
@@ -33,7 +33,7 @@ Unlike other content managers, Refinery is truly __aimed at the end user__ makin
 ### For developers
 
 * Easily customise the look to suit the business.
-* __[Extend with custom engines](http://github.com/resolve/refinerycms/blob/master/core/engines.md#readme)__ to do anything Refinery doesn't do out of the box.
+* __[Extend with custom engines](https://github.com/resolve/refinerycms/blob/master/doc/engines.md#readme)__ to do anything Refinery doesn't do out of the box.
 * Sticks to __"the Rails way"__ as much as possible; we don't force you to learn new templating languages.
 * Uses [jQuery](http://jquery.com/) for fast and concise Javascript.
 
@@ -50,16 +50,16 @@ Wanna see Refinery for yourself? [Try the demo](http://demo.refinerycms.com/refi
 * [GitHub repository](http://github.com/resolve/refinerycms)
 * [Developer/API documentation](http://api.refinerycms.org)
 * [Twitter Account](http://twitter.com/refinerycms)
-* Documentation about: [Pages](http://github.com/resolve/refinerycms/blob/master/pages/readme.md#readme), [Images](http://github.com/resolve/refinerycms/blob/master/images/readme.md#readme), [Files](http://github.com/resolve/refinerycms/blob/master/resources/readme.md#readme), [Inquiries](http://github.com/resolve/refinerycms-inquiries/blob/master/readme.md#readme), [Settings](http://github.com/resolve/refinerycms/blob/master/settings/readme.md#readme), [Dashboard](http://github.com/resolve/refinerycms/blob/master/dashboard/readme.md#readme), [Authentication & Users](http://github.com/resolve/refinerycms/blob/master/authentication/readme.md#readme), [Extending with Engines](http://github.com/resolve/refinerycms/blob/master/core/engines.md#readme).
+* Documentation about: [Pages](https://github.com/resolve/refinerycms/blob/master/doc/pages.md#readme), [Images](http://github.com/resolve/refinerycms/blob/master/doc/images.md#readme), [Files](http://github.com/resolve/refinerycms/blob/master/doc/resources.md#readme), [Inquiries](http://github.com/resolve/refinerycms-inquiries/blob/master/readme.md#readme), [Settings](http://github.com/resolve/refinerycms/blob/master/doc/settings.md#readme), [Dashboard](http://github.com/resolve/refinerycms/blob/master/doc/dashboard.md#readme), [Authentication & Users](http://github.com/resolve/refinerycms/blob/master/doc/authentication.md#readme), [Extending with Engines](http://github.com/resolve/refinerycms/blob/master/doc/engines.md#readme).
 
 ## Features
 
-### [Pages](http://github.com/resolve/refinerycms/blob/master/pages/readme.md#readme)
+### [Pages](http://github.com/resolve/refinerycms/blob/master/doc/pages.md#readme)
 
 * Easily edit and manage pages with a [WYSIWYG visual editor](http://www.wymeditor.org/).
 * Manage you site's structure.
 
-### [Images](http://github.com/resolve/refinerycms/blob/master/images/readme.md#readme) & [Files](http://github.com/resolve/refinerycms/blob/master/resources/readme.md#readme)
+### [Images](http://github.com/resolve/refinerycms/blob/master/doc/images.md#readme) & [Files](http://github.com/resolve/refinerycms/blob/master/doc/resources.md#readme)
 
 * Easily upload and insert images.
 * Upload and link to resources such as PDF documents.
@@ -72,28 +72,28 @@ Wanna see Refinery for yourself? [Try the demo](http://demo.refinerycms.com/refi
 * Manage your inquiries and be notified when new ones come in.
 * Checks new inquiries for spam.
 
-### [Settings](http://github.com/resolve/refinerycms/blob/master/settings/readme.md#readme)
+### [Settings](http://github.com/resolve/refinerycms/blob/master/doc/settings.md#readme)
 
 * Manage the behaviour of Refinery
 * Easily integrate with [Google Analytics](https://www.google.com/analytics/)
 
-### [Dashboard](http://github.com/resolve/refinerycms/blob/master/dashboard/readme.md#readme)
+### [Dashboard](http://github.com/resolve/refinerycms/blob/master/doc/dashboard.md#readme)
 
 * Get an overview of what has been updated recently and see recent inquiries.
 
-### [Authentication & Users](http://github.com/resolve/refinerycms/blob/master/authentication/readme.md#readme)
+### [Authentication & Users](http://github.com/resolve/refinerycms/blob/master/doc/authentication.md#readme)
 
 * Manage who can access Refinery.
 * Control which engines each user has access to.
 * Uses the popular [authlogic](http://github.com/binarylogic/authlogic).
 
-### ...Want more? [Extend with Engines](http://github.com/resolve/refinerycms/blob/master/core/engines.md#readme)
+### ...Want more? [Extend with Engines](http://github.com/resolve/refinerycms/blob/master/doc/engines.md#readme)
 
 Extend Refinery easily by running the Refinery engine generator
 
     rails generate refinery_engine
 
-to get help on how to use that. Or read the full documentation on [writing engines for Refinery](http://github.com/resolve/refinerycms/blob/master/core/engines.md#readme)
+to get help on how to use that. Or read the full documentation on [writing engines for Refinery](http://github.com/resolve/refinerycms/blob/master/docengines.md#readme)
 
 ### Popular Engines
 
@@ -109,7 +109,7 @@ to get help on how to use that. Or read the full documentation on [writing engin
 
 ## License
 
-Refinery is released under the [MIT license](http://github.com/resolve/refinerycms/blob/master/license.md#readme) and is copyright (c) 2005-2010 [Resolve Digital](http://www.resolvedigital.com)
+Refinery is released under the [MIT license](http://github.com/resolve/refinerycms/blob/master/license.md#readme) and is copyright (c) 2005-2011 [Resolve Digital](http://www.resolvedigital.com)
 
 ### Credits
 

@@ -7,6 +7,7 @@ da:
     dashboard:
       index:
         quick_tasks: Handlinger
+      actions:
         add_a_new_page: Tilføj en ny side
         update_a_page: Redigér en side
         upload_a_image: Upload et billede
@@ -16,7 +17,7 @@ da:
       recent_activity:
         empty: Der her ingen aktititeter været for nylig.
         latest_activity: Seneste aktiviteter
-        latest_activity_message: %{what} %{kind} blev %{action}
+        latest_activity_message: '%{what} %{kind} blev %{action}'
       recent_inquiries:
         latest_inquiries: Seneste henvendelser
   updated:

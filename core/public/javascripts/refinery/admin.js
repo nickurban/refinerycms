@@ -13,11 +13,28 @@ if(typeof(window.onpopstate) == "object"){
   $(window).bind('popstate', function(e) {
     // this fires on initial page load too which we don't need.
     if(!initialLoad) {
-      $.get(location.href, function(data) {
-        $('.pagination_container').slideTo(data);
-      });
+      $(document).paginateTo((location.pathname + location.href.split(location.pathname)[1]));
     }
     initialLoad = false;
+  });
+}
+
+$.fn.paginateTo = function(stateUrl) {
+  // Grab the url, ensuring not to cache.
+  $.ajax({
+    url: stateUrl,
+    cache: false,
+    success: function(data) {
+      $('.pagination_container').slideTo(data);
+
+      // remove caching _ argument.
+      $('.pagination_container .pagination a').each(function(i, a){
+        $(this).attr('href', $(this).attr('href').replace(/\?\_\=[^&]+&/, '?'));
+      })
+    },
+    failure: function(data) {
+      window.location = popstate_location;
+    }
   });
 }
 
@@ -46,12 +63,17 @@ init_ajaxy_pagination = function(){
   if(typeof(window.history.pushState) == 'function' && $('.pagination_container').length > 0){
     var pagination_pages = $('.pagination_container .pagination a');
     pagination_pages.live('click',function(e) {
-      this.href = (this.href.replace(/(\&(amp\;)?)?from_page\=\d+/, '')
-                   + '&from_page=' + $(this).parent().find('em').text()).replace('?&', '?');
-      history.pushState({ path: this.path }, '', this.href);
-      $.get(this.href, function(data) {
-        $('.pagination_container').slideTo(data)
-      })
+      navigate_to = this.href.replace(/(\&(amp\;)?)?from_page\=\d+/, '');
+      navigate_to += '&from_page=' + $(this).parent().find('em').text();
+      navigate_to = navigate_to.replace('?&', '?');
+
+      var current_state_location = (location.pathname + location.href.split(location.pathname)[1]);
+      window.history.pushState({
+        path: current_state_location
+      }, '', navigate_to);
+
+      $(document).paginateTo(navigate_to);
+
       e.preventDefault();
     });
   }
@@ -143,7 +165,7 @@ init_interface = function() {
   });
 
   $('.form-actions .form-actions-left input:submit#submit_button').click(function(e) {
-    $("<img src='/images/refinery/icons/ajax-loader.gif' width='16' height='16' class='save-loader' />").appendTo($(this).parent());
+    $("<img src='/images/refinery/ajax-loader.gif' width='16' height='16' class='save-loader' />").appendTo($(this).parent());
   });
 
   $('a.suppress').live('click', function(e){
@@ -243,7 +265,7 @@ init_submit_continue = function(){
   if ((continue_editing_button = $('#continue_editing')).length > 0 && continue_editing_button.attr('rel') != 'no-prompt') {
     $('#editor_switch a').click(function(e) {
       if ($('form[data-changes-made]').length > 0) {
-        if (!confirm("Any changes you've made will be lost. Are you sure you want to continue without saving?")) {
+        if (!confirm(I18n.t('js.admin.confirm_changes'))) {
           e.preventDefault();
         }
       }
@@ -415,14 +437,14 @@ var link_tester = {
     loader_img.insertAfter($(textbox_id));
     result_span.insertAfter(loader_img);
 
-    $(textbox_id).bind('paste keypress',function(){
+    $(textbox_id).bind('paste blur',function(){
       $(textbox_id).stop(true); // Clear the current queue; if we weren't checking yet, cancel it.
       $(textbox_id + '_test_loader').hide();
       $(textbox_id + '_test_result').hide();
       $(textbox_id + '_test_result').removeClass('success_icon').removeClass('failure_icon');
 
-      // Wait one second before checking.
-      $(textbox_id).delay(1000).queue(function () {
+      // Wait 300ms before checking.
+      $(textbox_id).delay(300).queue(function () {
         $(textbox_id + '_test_loader').show();
         $(textbox_id + '_test_result').hide();
         $(textbox_id + '_test_result').removeClass('success_icon').removeClass('failure_icon');
@@ -646,7 +668,7 @@ var page_options = {
   },
 
   title_type: function(){
-    $("input[name=page\[custom_title_type\]]").change(function(){
+    $('input#page_custom_title').parents('.field').find('input:radio').change(function(){
       $('#custom_title_text, #custom_title_image').hide();
       $('#custom_title_' + this.value).show();
     });
@@ -676,26 +698,25 @@ var page_options = {
         var tab_title = part_title.toLowerCase().replace(" ", "_");
 
         if ($('#part_' + tab_title).size() === 0) {
-          $.get(page_options.new_part_url,
-            {
+          $.get(page_options.new_part_url, {
               title: part_title
               , part_index: $('#new_page_part_index').val()
               , body: ''
-            }
-            , function(data, status){
+            }, function(data, status){
               $('#submit_continue_button').remove();
               // Add a new tab for the new content section.
               $(data).appendTo('#page_part_editors');
               page_options.tabs.tabs('add', '#page_part_new_' + $('#new_page_part_index').val(), part_title);
               page_options.tabs.tabs('select', $('#new_page_part_index').val());
 
-              // turn the new textarea into a wymeditor.
-              $('#page_parts_attributes_' + $('#new_page_part_index').val() + "_body").wymeditor(wymeditor_boot_options);
-
               // hook into wymedtior to instruct it to select this new tab again once it has loaded.
               WYMeditor.onload_functions.push(function() {
+                $('#page_part_new_' + $('#new_page_part_index').val()).appendTo('#page_part_editors');
                 page_options.tabs.tabs('select', $('#new_page_part_index').val());
               });
+
+              // turn the new textarea into a wymeditor.
+              WYMeditor.init();
 
               // Wipe the title and increment the index counter by one.
               $('#new_page_part_index').val(parseInt($('#new_page_part_index').val(), 10) + 1);
@@ -704,6 +725,7 @@ var page_options = {
               page_options.tabs.find('> ul li a').corner('top 5px');
 
               $('#new_page_part_dialog').dialog('close');
+              $('#new_page_part_dialog').remove();
             }
           );
         }else{

@@ -21,9 +21,9 @@ sv:
         cancel: Avbryt
   refinery:
     crudify:
-      created: %{what} lades till.
-      updated: %{what} uppdaterades.
-      destroyed: %{what} togs bort.
+      created: '%{what} lades till.'
+      updated: '%{what} uppdaterades.'
+      destroyed: '%{what} togs bort.'
   shared:
     site_bar:
       log_out: Logga ut
@@ -48,7 +48,7 @@ sv:
         opens_in_new_window: Öppnas i nytt fönster
         remove_current: "Ta bort denna fil"
         no_resource_selected: Ingen fil är vald, klicka här för att lägga till en.
-        name: Lägg till en fil
+        name: Ladda upp en fil
         current: Aktuell fil
       search:
         button_text: Sök

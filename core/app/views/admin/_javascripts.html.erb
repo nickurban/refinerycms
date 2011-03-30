@@ -1,10 +1,11 @@
 <%
   js_caching = Rails.root.writable? and RefinerySetting.find_or_set(:use_resource_caching, true)
-  login = defined?(login) ? login : login?
+  login = login? unless defined?(login)
 -%>
 <%= yield :before_javascript_libraries -%>
 <%= javascript_include_tag 'refinery/i18n' -%>
 <script>I18n.locale = '<%= I18n.locale %>';</script>
+<%= javascript_include_tag 'translations' if Rails.root.join('public', 'javascripts', 'translations.js').exist? -%>
 
 <%= jquery_include_tags    :caching => js_caching -%>
 
@@ -17,11 +18,10 @@
                            'jquery/jquery.jcarousel.js',
                            :cache => ("cache/jquery-plugins" if js_caching) unless login -%>
 
-<%= yield :after_javascript_libraries -%>
+<%= javascript_include_tag 'wymeditor/jquery.refinery.wymeditor.js', 'admin' %>
 
-<%= javascript_include_tag 'wymeditor/jquery.refinery.wymeditor.js',
-                           'admin',
-                           'refinery/boot_wym',
+<%= yield :after_javascript_libraries -%>
+<%= javascript_include_tag 'refinery/boot_wym',
                            'refinery/core',
                            'refinery/site_bar',
                            'refinery/admin',
@@ -30,3 +30,4 @@
 <%= javascript_include_tag 'refinery/core' if login -%>
 
 <%= yield :javascripts -%>
+

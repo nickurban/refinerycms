@@ -211,7 +211,11 @@ $.extend(WYMeditor, {
     BLOCKS : new Array("address", "blockquote", "div", "dl",
      "fieldset", "form", "h1", "h2", "h3", "h4", "h5", "h6", "hr",
      "noscript", "ol", "p", "pre", "table", "ul", "dd", "dt",
-     "li", "tbody", "td", "tfoot", "th", "thead", "tr"),
+     "li", "tbody", "td", "tfoot", "th", "thead", "tr", "meter",
+     "section", "article", "aside", "details", "header", "footer",
+     "nav", "dialog", "figure", "figcaption", "address", "hgroup",
+     "mark", "time", "canvas", "audio", "video", "source", "output",
+     "progress", "ruby", "rt", "rp", "summary", "command"),
 
     KEY : {
       BACKSPACE: 8,
@@ -751,8 +755,8 @@ WYMeditor.editor.prototype.init = function() {
             var wym = this;
             $.each(oClass.rules, function(index, rule) {
               sClass = wym._options.classesItemHtml;
-              sClass = h.replaceAll(sClass, WYMeditor.CLASS_NAME, oClass.name + (oClass.join || "") + rule);
-              sClass = h.replaceAll(sClass, WYMeditor.CLASS_TITLE, rule.title || titleize(rule));
+              sClass = h.replaceAll(sClass, WYMeditor.CLASS_NAME, oClass.name + (oClass.join || "") + (rule.name || rule));
+              sClass = h.replaceAll(sClass, WYMeditor.CLASS_TITLE, rule.title || titleize(rule.name || rule));
               sRules += sClass;
             });
 
@@ -839,7 +843,7 @@ WYMeditor.editor.prototype.bindEvents = function() {
     .blur(function() { $(this).toggleClass('hasfocus'); });
 
   //handle click event on classes buttons
-  $(this._box).find(this._options.classSelector).bind('click', function() {
+  $(this._box).find(this._options.classSelector).bind('click', function(e) {
 
     var aClasses = eval(wym._options.classesItems);
     var sName = $(this).attr(WYMeditor.NAME);
@@ -848,15 +852,17 @@ WYMeditor.editor.prototype.bindEvents = function() {
     if (oClass == null) {
       $.each(aClasses, function(index, classRule){
         if (oClass == null && classRule.rules && classRule.rules.length > 0){
-          if ((indexOf = $.inArray(sName.replace(classRule.name + (classRule.join || ""), ""), classRule.rules)) > -1) {
-            $.each(classRule.rules, function(i, rule) {
-              if (i != indexOf) {
-                replacers.push(classRule.name + (classRule.join || "") + rule);
-              }
-            });
+          var ruleName = sName.replace(classRule.name + (classRule.join || ""), "");
+          var indexOf = null;
+          $.each(classRule.rules, function(i, rule) {
+            if (ruleName == (rule.name || rule)) {
+              indexOf = i;
+            } else {
+              replacers.push(classRule.name + (classRule.join || "") + (rule.name || rule));
+            }
+          });
 
-            oClass = {expr: (classRule.rules[indexOf].expr || null)};
-          }
+          if (indexOf != null) oClass = {expr: (classRule.rules[indexOf].expr || null)};
         }
       });
     }
@@ -874,7 +880,7 @@ WYMeditor.editor.prototype.bindEvents = function() {
     wym.exec(WYMeditor.APPLY_CLASS);
 
     wym._iframe.contentWindow.focus(); //See #154
-    return(false);
+    e.preventDefault();
   });
 
   //handle event on update element
@@ -970,7 +976,6 @@ WYMeditor.editor.prototype.exec = function(cmd) {
 
     case WYMeditor.APPLY_CLASS:
       wym = this;
-      wym.toggleClassSelector();
       // determine whether any classes are already selected and add the enabled class to them.
       $(wym._box).find(this._options.classUnhiddenSelector).find("a[name]").each(function(index, rule){
         if ($(wym.selected()).hasClass($(rule).attr('name'))) {
@@ -1084,11 +1089,23 @@ WYMeditor.editor.prototype.toggleClass = function(sClass, jqexpr) {
 WYMeditor.editor.prototype.toggleClassSelector = function() {
   // substring(1) to remove the . at the start
   var wym = this;
-  $(wym._box).find(wym._options.classUnhiddenSelector)
-             .toggleClass(wym._options.classHiddenSelector.substring(1));
+  var disabled = $(wym._box).find(wym._options.classUnhiddenSelector)
+                            .hasClass(wym._options.classHiddenSelector.substring(1));
+  if (disabled) {
+    $(wym._box).find(wym._options.classUnhiddenSelector)
+               .removeClass(wym._options.classHiddenSelector.substring(1));
 
-  $(wym._box).find("a[name=" + WYMeditor.APPLY_CLASS +"]")
-             .toggleClass('selected').parent().toggleClass('activated');
+    $(wym._box).find("a[name=" + WYMeditor.APPLY_CLASS +"]")
+               .addClass('selected').parent().addClass('activated');
+  } else {
+    $(wym._box).find(wym._options.classUnhiddenSelector)
+               .addClass(wym._options.classHiddenSelector.substring(1));
+
+    $(wym._box).find("a[name=" + WYMeditor.APPLY_CLASS +"]")
+               .removeClass('selected').parent().removeClass('activated');
+  }
+
+  wym.exec(WYMeditor.APPLY_CLASS);
 }
 
 /* @name removeClass
@@ -1276,7 +1293,7 @@ WYMeditor.editor.prototype.dialog = function( dialogType ) {
 
   if (dialogType == WYMeditor.DIALOG_LINK && $.browser.mozilla) {
     selection = wym._iframe.contentWindow.getSelection();
-    matches = $($(selected).html().match(new RegExp(selection.anchorNode.textContent + "(.*)" + selection.focusNode.textContent)));
+    matches = $($(selected).html().match(new RegExp(RegExp.escape(selection.anchorNode.textContent) + "(.*)" + RegExp.escape(selection.focusNode.textContent))));
     if (matches != null && matches.length > 0 && (possible_anchor_tag = matches.last()).length > 0)
     {
       if (((href_matches = possible_anchor_tag.get(0).match(/href="([^"]*)"/)) != null) && (href = $(href_matches).last().get(0)) != null)
@@ -2436,7 +2453,7 @@ WYMeditor.XhtmlValidator = {
         "readonly":/^(readonly)$/,
         "size":/^(\d)+$/,
         "3":"src",
-        "type":/^(button|checkbox|file|hidden|image|password|radio|reset|submit|text)$/,
+        "type":/^(button|checkbox|file|hidden|image|password|radio|reset|submit|text|tel|search|url|email|datetime|date|month|week|time|datetime-local|number|range|color)$/,
         "4":"value"
       },
       "inside":"form"
@@ -3773,10 +3790,15 @@ WYMeditor.XhtmlSaxListener = function()
     "object", "ol", "optgroup", "option", "p", "pre", "q",
     "samp", "script", "select", "small", "span", "strong", "style",
     "sub", "sup", "table", "tbody", "td", "textarea", "tfoot", "th",
-    "thead", "title", "tr", "tt", "ul", "var", "extends"];
+    "thead", "title", "tr", "tt", "ul", "var", "extends", "meter",
+    "section", "article", "aside", "details", "header", "footer",
+    "nav", "dialog", "figure", "figcaption", "address", "hgroup",
+    "mark", "time", "canvas", "audio", "video", "source", "output",
+    "progress", "ruby", "rt", "rp", "wbr", "summary", "command"];
 
 
-    this.inline_tags = ["br", "embed", "hr", "img", "input", "param"];
+    // Defines self-closing tags.
+    this.inline_tags = ["br", "embed", "hr", "img", "input", "param", "source"];
 
     return this;
 };
@@ -4290,6 +4312,9 @@ WYMeditor.WymClassExplorer.prototype.initIframe = function(iframe) {
 
     //set the text direction
     $('html', this._doc).attr('dir', this._options.direction);
+
+    // Add class to say this is Internet Explorer
+    $('html', this._doc).addClass('ie');
 
     //init html value
     $(this._doc.body).html(this._wym._html);
@@ -5139,4 +5164,9 @@ WYMeditor.WymClassSafari.prototype.getTagForStyle = function(style) {
   if(/sub/.test(style)) return 'sub';
   if(/super/.test(style)) return 'sup';
   return false;
+};
+
+// from http://simonwillison.net/2006/Jan/20/escape/#p-6
+RegExp.escape = function(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 };
