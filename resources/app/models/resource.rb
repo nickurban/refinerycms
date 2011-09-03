@@ -2,7 +2,7 @@ class Resource < ActiveRecord::Base
 
   attr_accessible :id, :file
   # What is the max resource size a user can upload
-  MAX_SIZE_IN_MB = 50
+  MAX_SIZE_IN_MB = RefinerySetting.find_or_set(:resource_max_size, 50)
 
   resource_accessor :file
 
